@@ -1,3 +1,7 @@
 How to create a new environment
 python3 -m venv venv
 source venv/bin/activate
+
+How to run the server
+fastapi dev main.py or
+fastapi dev src
