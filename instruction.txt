@@ -1,0 +1,3 @@
+How to create a new environment
+python3 -m venv venv
+source venv/bin/activate
