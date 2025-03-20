@@ -6,9 +6,18 @@ How to run the server
 fastapi dev main.py or
 fastapi dev src
 
+### install alembic
 pip install alembic 
-check if alembic has been install correctly
+
+### check if alembic has been install correctly
 alembic --help
-initialize alembic in the project with async  
+
+### initialize alembic in the project with async  
 alembic init -t async migrations     --> note migrations is the name of your alembic setup name it anything you want
+
+###  auto generate the migration base on our models command 
+alembic revision --autogenerate -m "init migration first migrations base on current models"
+
+### push the created tables generate by alembic 
+alembic upgrade head
 
