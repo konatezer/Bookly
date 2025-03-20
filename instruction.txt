@@ -5,3 +5,10 @@ source venv/bin/activate
 How to run the server
 fastapi dev main.py or
 fastapi dev src
+
+pip install alembic 
+check if alembic has been install correctly
+alembic --help
+initialize alembic in the project with async  
+alembic init -t async migrations     --> note migrations is the name of your alembic setup name it anything you want
+
