@@ -21,3 +21,7 @@ alembic revision --autogenerate -m "init migration first migrations base on curr
 ### push the created tables generate by alembic 
 alembic upgrade head
 
+### add password field to the users table
+alembic revision --autogenerate -m "add password to users tables"
+alembic upgrade head
+
