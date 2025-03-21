@@ -24,3 +24,7 @@ class UserCreateModel(BaseModel):
    email: str  = Field(max_length=40)
    password_hash: str = Field(min_length=6)
 
+
+class UserLoginModel(BaseModel):
+   email: str
+   password_hash: str = Field(exclude=True)
