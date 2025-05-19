@@ -1,9 +1,10 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
+from fastapi import HTTPException, status
 from passlib.context import CryptContext
 import jwt
 import uuid
 from src.config import ConfigAccessEnvVarriable
-import logging
+
 
 password_contect = CryptContext(
    schemes=['bcrypt']
@@ -21,14 +22,13 @@ def verify_password(password: str, hash: str) -> bool:
    return password_contect.verify(password , hash)
 
 def create_access_token(user_data: dict, expiry: timedelta = None, refresh: bool = False):
+   payload = {
+      "user": user_data,
+      "exp": int((datetime.now(timezone.utc) + (expiry or timedelta(seconds=ACCESS_TOKEN_EXPIRY))).timestamp()),
+      "jti": str(uuid.uuid4()),
+      "refresh": refresh
+   }
 
-   payload = {}
-
-   payload["user"] = user_data
-   payload["exp"] = datetime.now() + (expiry if expiry is not None else timedelta(seconds=ACCESS_TOKEN_EXPIRY))
-   payload["jti"] = str(uuid.uuid4())
-   payload["refresh"] = refresh
-   
    token = jwt.encode(
       payload=payload,
       key=ConfigAccessEnvVarriable.JWT_SECRET,
@@ -36,6 +36,7 @@ def create_access_token(user_data: dict, expiry: timedelta = None, refresh: bool
    )
 
    return token
+
 
 
 def decode_token(token: str ) -> dict:
@@ -46,6 +47,7 @@ def decode_token(token: str ) -> dict:
          algorithms=[ConfigAccessEnvVarriable.JWT_ALGORITHM]
       )
       return token_data
-   except jwt.PyJWTError as e:
-      logging.exception(e)
-      return None
+   except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired")
+   except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
