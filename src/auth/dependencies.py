@@ -1,8 +1,12 @@
-import logging
-from fastapi import HTTPException, Request, status
+from fastapi import HTTPException, Request, status, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .utils import decode_token
 from src.db.redis import token_in_blocklist
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.db.main import get_session
+from .service import UserService
+
+user_servive = UserService()
 
 
 class TokenBearer(HTTPBearer):
@@ -49,6 +53,7 @@ class TokenBearer(HTTPBearer):
         if token_data and token_data["refresh"]:
             raise NotImplementedError("Please override this method in child classes")
 
+
 class AccessTokenBearer(TokenBearer):
     def verify_token_data(selft, token_data: dict) -> None:
         if token_data and token_data["refresh"]:
@@ -56,6 +61,7 @@ class AccessTokenBearer(TokenBearer):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Please provide an access token",
             )
+
 
 class RefreshTokenBearer(TokenBearer):
 
@@ -65,3 +71,13 @@ class RefreshTokenBearer(TokenBearer):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Please provide an refresh token",
             )
+
+
+async def get_current_user(
+    token_details: dict = Depends(AccessTokenBearer()),
+    session: AsyncSession = Depends(get_session),
+):
+    user_email = token_details["user"]["email"]
+    user = await user_servive.get_user_by_email(user_email, session)
+
+    return user
