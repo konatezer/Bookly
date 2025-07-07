@@ -17,7 +17,7 @@ app = FastAPI(
    title="beyond CRUD",
    description="A REST API for book review web service.",
    version=version,
-   lifespan=life_span
+   # lifespan=life_span    let alambic manage db migration 
 )
 
 app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["auth"])
