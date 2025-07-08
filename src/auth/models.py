@@ -1,7 +1,9 @@
-from sqlmodel import SQLModel, Field, Column
+from sqlmodel import SQLModel, Field, Column, Relationship
 import sqlalchemy.dialects.postgresql as pg
+from src.books import models
 import uuid
 from datetime import datetime
+from typing import Optional, List
 
 
 class User(SQLModel, table=True):
@@ -23,6 +25,9 @@ class User(SQLModel, table=True):
     )  # exclude  password from the return of the response.
     create_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     update_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
+    books: List["models.Book"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
     def __repr__(self):
         return f"<user {self.username}>"
